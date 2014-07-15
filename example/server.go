@@ -10,7 +10,7 @@ import (
 	"fmt"
 )
 
-// we load up our database connection suing the Beego ORM (http://beego.me/)
+// we load up our database connection using the Beego ORM (http://beego.me/)
 func init() {
 
 	orm.RegisterDriver("postgres", orm.DR_Postgres)
@@ -30,26 +30,42 @@ func main() {
 	{
 		apiv1.POST("/login", controllers.LoginPost)
 		apiv1.GET("/logout", func(ctx *gin.Context) {
-				auth.Logout(ctx) // logs out the user
+
+				// logs out the user
+				auth.Logout(ctx)
+
 			})
 
-		authenticate := apiv1.Group("/")  // set up and authentication group
+		// set up and authentication group that uses our ginAuth middleware
+		authenticate := apiv1.Group("/")
 		authenticate.Use(auth.Use)
 		authenticate.GET("/checklogin", func(ctx *gin.Context){
-				ctx.String(200, "You are logged in!") // if not logged in, you will never reach this
+
+				// if not logged in, you will never reach this
+				ctx.String(200, "You are logged in!")
+
 			})
 
 	}
 
-	auth.ConfigPath = "/Users/Brad/go/src/github.com/rageix/ginAuth/example/conf/login.conf"  // the path to our config file
-	auth.Unauthorized = controllers.LoginUnauthenticated  // our unauthorized handler
+	// the path to our config file
+	auth.ConfigPath = "/Users/Brad/go/src/github.com/rageix/ginAuth/example/conf/login.conf"
+	// our unauthorized handler
+	auth.Unauthorized = controllers.LoginUnauthenticated
 
-	err := auth.LoadConfig() // load our config file, you can skip this and set the values yourself
+	// load our config file, you can skip this and set the values yourself
+	err := auth.LoadConfig()
 
 	if err != nil {
-		fmt.Println(err) // if there was an error loading our config file
+
+		// if there was an error loading our config file
+		fmt.Println(err)
+
 	} else {
-		r.Run("127.0.0.1:8080") // Run our server if no errors
+
+		// Run our server if no errors
+		r.Run("127.0.0.1:8080")
+
 	}
 
 }
