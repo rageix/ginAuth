@@ -21,16 +21,16 @@ const VERSION = "0.0.1"
 
 // set our global package variables
 var (
-	CookieName string                       // the name of the cookie the jwt will use
-	ConfigPath string                       // path to config file
-	ConfigType string                       // type of config file
-	Prefix string                           // the key in context.Input.Data to use
+	CookieName string                       // the name of the cookie that will be used, default: "token"
+	ConfigPath string                       // path to config file, default: ""
+	ConfigType string                       // type of config file, default: "ini"
+	Prefix string                           // the key in ctx.Keys[] to use, default: ""
 	HashKey []byte                          // hash key for securecookie
 	BlockKey []byte                         // block key for securecookie
-	Expiration int64                        // time until the cookie expires in seconds
+	Expiration int64                        // time until the cookie expires in seconds, default: 604800
 	Unauthorized func(ctx *gin.Context)     // function called if user is not authorized
 	Authorized func(ctx *gin.Context)       // function called if user is authorized
-	SecureCookie *securecookie.SecureCookie // global secure object
+	SecureCookie *securecookie.SecureCookie // global secure cookie object
 )
 
 func init() {
@@ -40,20 +40,6 @@ func init() {
 	CookieName = "token"
 	Prefix = ""
 	Expiration = 604800 // 7 days
-
-
-	//	HashKey = securecookie.GenerateRandomKey(64)
-	//	BlockKey = securecookie.GenerateRandomKey(32)
-
-	//	HashKey = []byte{68, 173, 201, 190, 76, 68, 232, 72, 251, 149, 166, 78, 159, 229, 190, 239, 60, 128, 33, 85, 38, 230, 185, 125, 67, 153, 7, 45, 251, 48, 149, 20, 99, 178, 140, 51, 54, 235, 179, 17, 70, 212, 173, 19, 168, 240, 75, 8, 64, 186, 85, 20, 48, 58, 163, 90, 122, 163, 13, 43, 201, 186, 114, 66}
-	//	fmt.Println(hex.EncodeToString(HashKey))
-	//	BlockKey = []byte{38, 138, 35, 29, 79, 232, 212, 74, 199, 159, 200, 204, 113, 147, 33, 85, 33, 227, 1, 231, 226, 191, 128, 54, 108, 82, 13, 229, 36, 98, 54, 253}
-	//	fmt.Println(hex.EncodeToString(BlockKey))
-
-
-	//	for i := 0; i < len(BlockKey); i++ {
-	//		fmt.Printf("\\n%x", BlockKey[i])
-	//	}
 
 }
 
@@ -124,7 +110,7 @@ func LoadConfig() error {
 
 		}
 
-		if expiration := conf.String("experation"); expiration != "" {
+		if expiration := conf.String("expiration"); expiration != "" {
 
 			val, err := strconv.ParseInt(expiration, 10, 64)
 			if err != nil {
@@ -135,8 +121,6 @@ func LoadConfig() error {
 
 		}
 	}
-
-	SecureCookie = securecookie.New(HashKey, BlockKey)
 
 	return nil
 }
@@ -162,6 +146,7 @@ func Check(ctx *gin.Context) error {
 
 		data := make(map[string]string)
 
+		SecureCookie = securecookie.New(HashKey, BlockKey)
 		if err := SecureCookie.Decode(CookieName, cookie.Value, &data); err == nil {
 
 			// save the login cookie data to the context
@@ -214,6 +199,7 @@ func Login(ctx *gin.Context, extra map[string]string) error {
 	data["hash"] = hashHeader(ctx)
 
 	// encode our cookie data securely
+	SecureCookie = securecookie.New(HashKey, BlockKey)
 	if encoded, err := SecureCookie.Encode(CookieName, data); err == nil {
 
 		//set our cookie
@@ -227,7 +213,7 @@ func Login(ctx *gin.Context, extra map[string]string) error {
 	return nil
 }
 
-// removes our token cookie, sets the context to not logged in
+// removes our token cookie, sets the context to: not logged in
 func Logout(ctx *gin.Context) {
 
 	cookie := http.Cookie{Name: CookieName, Path: "/", MaxAge: -1}

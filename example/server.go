@@ -10,7 +10,7 @@ import (
 	"fmt"
 )
 
-// we load up our database connection using the Beego ORM (http://beego.me/)
+// we load up our database connection using the Beego ORM (http://beego.me/docs/mvc/model/overview.md)
 func init() {
 
 	orm.RegisterDriver("postgres", orm.DR_Postgres)
@@ -38,6 +38,7 @@ func main() {
 
 		// set up and authentication group that uses our ginAuth middleware
 		authenticate := apiv1.Group("/")
+		// tell it to use the ginAuth middleware on these routes
 		authenticate.Use(auth.Use)
 		authenticate.GET("/checklogin", func(ctx *gin.Context){
 
@@ -52,6 +53,8 @@ func main() {
 	auth.ConfigPath = "/Users/Brad/go/src/github.com/rageix/ginAuth/example/conf/login.conf"
 	// our unauthorized handler
 	auth.Unauthorized = controllers.LoginUnauthenticated
+	// our authorized handler
+	auth.Authorized = controllers.LoginAuthenticated
 
 	// load our config file, you can skip this and set the values yourself
 	err := auth.LoadConfig()

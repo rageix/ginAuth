@@ -5,6 +5,7 @@ import (
 	"github.com/rageix/ginAuth/example/models"
 	auth "github.com/rageix/ginAuth"
 	"github.com/gin-gonic/gin"
+	"fmt"
 )
 
 type LoginData struct {
@@ -47,7 +48,13 @@ func LoginPost(ctx *gin.Context) {
 
 func LoginAuthenticated(ctx *gin.Context) {
 
-	// load our user or something
+	// fetch our decrypted data that was set on our cookie
+	// NOTE: if you set a prefix you need to add it before cookieData
+	cookie, err := ctx.Get("cookieData")
+	if err == nil {
+		// return the email we set with auth.Login
+		fmt.Println("The current logged in user's email is: ", cookie["email"])
+	}
 
 }
 
