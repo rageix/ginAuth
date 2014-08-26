@@ -228,9 +228,7 @@ func hashHeader(ctx *gin.Context) string {
 	h := md5.New()
 
 	io.WriteString(h, ctx.Req.Header.Get("User-Agent"))
-	io.WriteString(h, ctx.Req.Header.Get("Accept-Encoding"))
 	io.WriteString(h, ctx.Req.Header.Get("Accept-Language"))
-	io.WriteString(h, ctx.Req.Header.Get("Host"))
 
 	return hex.EncodeToString(h.Sum(nil))
 
