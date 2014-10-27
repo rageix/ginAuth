@@ -132,7 +132,7 @@ func saveLogin(ctx *gin.Context, status bool) {
 
 // a private function that returns the ip from the current request
 func ip(ctx *gin.Context) string {
-	return strings.Split(ctx.Req.RemoteAddr, ":")[0]
+	return strings.Split(ctx.Request.RemoteAddr, ":")[0]
 }
 
 // checks for our token cookie, decodes it, and determines if it is valid
@@ -140,7 +140,7 @@ func ip(ctx *gin.Context) string {
 func Check(ctx *gin.Context) error {
 
 	// get the encrypted cookie value
-	cookie, err := ctx.Req.Cookie(CookieName)
+	cookie, err := ctx.Request.Cookie(CookieName)
 
 	if err == nil {
 
@@ -227,8 +227,8 @@ func hashHeader(ctx *gin.Context) string {
 
 	h := md5.New()
 
-	io.WriteString(h, ctx.Req.Header.Get("User-Agent"))
-	io.WriteString(h, ctx.Req.Header.Get("Accept-Language"))
+	io.WriteString(h, ctx.Request.Header.Get("User-Agent"))
+	io.WriteString(h, ctx.Request.Header.Get("Accept-Language"))
 
 	return hex.EncodeToString(h.Sum(nil))
 
